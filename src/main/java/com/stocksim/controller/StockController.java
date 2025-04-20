@@ -5,10 +5,13 @@ import com.stocksim.model.User;
 import com.stocksim.service.StockService;
 import com.stocksim.service.TransactionService;
 import com.stocksim.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
 import java.util.Optional;
@@ -17,6 +20,7 @@ import java.util.Optional;
 @RequestMapping("/stocks")
 public class StockController {
     
+    private static final Logger logger = LoggerFactory.getLogger(StockController.class);
     private final StockService stockService;
     private final UserService userService;
     private final TransactionService transactionService;
@@ -61,7 +65,7 @@ public class StockController {
     public String buyStock(@RequestParam String stockId,
                           @RequestParam int quantity,
                           HttpSession session,
-                          Model model) {
+                          RedirectAttributes redirectAttributes) {
         String userId = (String) session.getAttribute("userId");
         if (userId == null) {
             return "redirect:/login";
@@ -71,16 +75,25 @@ public class StockController {
         Optional<Stock> stockOpt = stockService.getStockById(stockId);
         
         if (userOpt.isEmpty() || stockOpt.isEmpty() || quantity <= 0) {
-            model.addAttribute("error", "Invalid transaction");
+            redirectAttributes.addFlashAttribute("error", "Invalid transaction");
+            logger.warn("Invalid buy transaction: userId={}, stockId={}, quantity={}", userId, stockId, quantity);
             return "redirect:/";
         }
         
-        boolean success = transactionService.buyStock(userOpt.get(), stockOpt.get(), quantity);
+        User user = userOpt.get();
+        Stock stock = stockOpt.get();
+        boolean success = transactionService.buyStock(user, stock, quantity);
         
         if (!success) {
-            model.addAttribute("error", "Insufficient funds");
+            redirectAttributes.addFlashAttribute("error", "Insufficient funds to buy " + quantity + " shares of " + stock.getSymbol());
+            logger.warn("Insufficient funds: user={}, balance=${}, required=${}", 
+                user.getUsername(), 
+                user.getAccountBalance(), 
+                stock.getCurrentPrice().multiply(new java.math.BigDecimal(quantity)));
         } else {
-            model.addAttribute("success", "Stock purchased successfully");
+            redirectAttributes.addFlashAttribute("success", "Successfully purchased " + quantity + " shares of " + stock.getSymbol());
+            logger.info("Stock purchase successful: user={}, stock={}, quantity={}, price=${}", 
+                user.getUsername(), stock.getSymbol(), quantity, stock.getCurrentPrice());
         }
         
         return "redirect:/";
@@ -90,7 +103,7 @@ public class StockController {
     public String sellStock(@RequestParam String stockId,
                            @RequestParam int quantity,
                            HttpSession session,
-                           Model model) {
+                           RedirectAttributes redirectAttributes) {
         String userId = (String) session.getAttribute("userId");
         if (userId == null) {
             return "redirect:/login";
@@ -100,16 +113,23 @@ public class StockController {
         Optional<Stock> stockOpt = stockService.getStockById(stockId);
         
         if (userOpt.isEmpty() || stockOpt.isEmpty() || quantity <= 0) {
-            model.addAttribute("error", "Invalid transaction");
+            redirectAttributes.addFlashAttribute("error", "Invalid transaction");
+            logger.warn("Invalid sell transaction: userId={}, stockId={}, quantity={}", userId, stockId, quantity);
             return "redirect:/";
         }
         
-        boolean success = transactionService.sellStock(userOpt.get(), stockOpt.get(), quantity);
+        User user = userOpt.get();
+        Stock stock = stockOpt.get();
+        boolean success = transactionService.sellStock(user, stock, quantity);
         
         if (!success) {
-            model.addAttribute("error", "Insufficient stock quantity");
+            redirectAttributes.addFlashAttribute("error", "Insufficient stock quantity: You don't own " + quantity + " shares of " + stock.getSymbol());
+            logger.warn("Insufficient stock quantity: user={}, stock={}, requested quantity={}", 
+                user.getUsername(), stock.getSymbol(), quantity);
         } else {
-            model.addAttribute("success", "Stock sold successfully");
+            redirectAttributes.addFlashAttribute("success", "Successfully sold " + quantity + " shares of " + stock.getSymbol());
+            logger.info("Stock sale successful: user={}, stock={}, quantity={}, price=${}", 
+                user.getUsername(), stock.getSymbol(), quantity, stock.getCurrentPrice());
         }
         
         return "redirect:/";

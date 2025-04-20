@@ -167,70 +167,98 @@
     <script th:inline="javascript">
         /*<![CDATA[*/
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM fully loaded');
             const portfolioItems = /*[[${portfolioItems}]]*/ [];
+            console.log('Portfolio items:', portfolioItems);
             
             if (portfolioItems && portfolioItems.length > 0) {
-                // Portfolio Composition Pie Chart
-                const symbols = portfolioItems.map(item => item.stock.symbol);
-                const values = portfolioItems.map(item => item.getCurrentValue());
+                console.log('Creating charts for', portfolioItems.length, 'items');
                 
-                new Chart(document.getElementById('portfolioComposition'), {
-                    type: 'pie',
-                    data: {
-                        labels: symbols,
-                        datasets: [{
-                            data: values,
-                            backgroundColor: [
-                                '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
-                                '#FF9F40', '#8AC249', '#EA526F', '#23B5D3', '#7E909A'
-                            ]
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: {
-                                position: 'right',
-                            },
-                            title: {
-                                display: true,
-                                text: 'Portfolio Distribution'
-                            }
-                        }
-                    }
-                });
-                
-                // Performance Bar Chart
-                const profitLoss = portfolioItems.map(item => item.getProfitLoss());
-                
-                new Chart(document.getElementById('performanceBarChart'), {
-                    type: 'bar',
-                    data: {
-                        labels: symbols,
-                        datasets: [{
-                            label: 'Profit/Loss ($)',
-                            data: profitLoss,
-                            backgroundColor: profitLoss.map(value => value >= 0 ? '#36A2EB' : '#FF6384')
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: {
-                                display: false
-                            },
-                            title: {
-                                display: true,
-                                text: 'Stock Performance'
-                            }
+                try {
+                    // Portfolio Composition Pie Chart
+                    const symbols = portfolioItems.map(item => item.stock.symbol);
+                    const values = portfolioItems.map(item => {
+                        // Extract the numeric value from the getCurrentValue method result
+                        return parseFloat(item.getCurrentValue().toString());
+                    });
+                    
+                    console.log('Symbols:', symbols);
+                    console.log('Values:', values);
+                    
+                    const portfolioCanvas = document.getElementById('portfolioComposition');
+                    console.log('Portfolio canvas element:', portfolioCanvas);
+                    
+                    new Chart(portfolioCanvas, {
+                        type: 'pie',
+                        data: {
+                            labels: symbols,
+                            datasets: [{
+                                data: values,
+                                backgroundColor: [
+                                    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+                                    '#FF9F40', '#8AC249', '#EA526F', '#23B5D3', '#7E909A'
+                                ]
+                            }]
                         },
-                        scales: {
-                            y: {
-                                beginAtZero: false
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    position: 'right',
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Portfolio Distribution'
+                                }
                             }
                         }
-                    }
-                });
+                    });
+                    
+                    // Performance Bar Chart
+                    const profitLoss = portfolioItems.map(item => {
+                        // Extract the numeric value from the getProfitLoss method result
+                        return parseFloat(item.getProfitLoss().toString());
+                    });
+                    
+                    console.log('Profit/Loss values:', profitLoss);
+                    
+                    const performanceCanvas = document.getElementById('performanceBarChart');
+                    console.log('Performance canvas element:', performanceCanvas);
+                    
+                    new Chart(performanceCanvas, {
+                        type: 'bar',
+                        data: {
+                            labels: symbols,
+                            datasets: [{
+                                label: 'Profit/Loss ($)',
+                                data: profitLoss,
+                                backgroundColor: profitLoss.map(value => value >= 0 ? '#36A2EB' : '#FF6384')
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Stock Performance'
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: false
+                                }
+                            }
+                        }
+                    });
+                    console.log('Charts created successfully');
+                } catch (error) {
+                    console.error('Error creating charts:', error);
+                }
+            } else {
+                console.log('No portfolio items to display in charts');
             }
         });
         /*]]>*/
