@@ -1,0 +1,109 @@
+/* Global Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+}
+
+/* Card Styling */
+.card {
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    border: none;
+}
+
+.card .card-header {
+    font-weight: 600;
+    padding: 12px 20px;
+    background-color: rgba(0, 0, 0, 0.03);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.card .card-body {
+    padding: 20px;
+}
+
+.card.shadow {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Table Styling */
+.table thead th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    border-top: none;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+/* Button Styling */
+.btn {
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.btn-primary, .bg-primary {
+    background-color: #0d6efd !important;
+    border-color: #0d6efd !important;
+}
+
+.btn-success, .bg-success {
+    background-color: #198754 !important;
+    border-color: #198754 !important;
+}
+
+.btn-danger, .bg-danger {
+    background-color: #dc3545 !important;
+    border-color: #dc3545 !important;
+}
+
+.btn-info, .bg-info {
+    background-color: #0dcaf0 !important;
+    border-color: #0dcaf0 !important;
+}
+
+/* Navbar */
+.navbar {
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+/* Form controls */
+.form-control {
+    border-radius: 4px;
+    padding: 0.5rem 0.75rem;
+}
+
+.form-control:focus {
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    border-color: #86b7fe;
+}
+
+/* Dashboard summary cards */
+.card.bg-primary, .card.bg-success, .card.bg-info, .card.bg-danger {
+    color: white;
+}
+
+.card.bg-primary .card-title, .card.bg-success .card-title, 
+.card.bg-info .card-title, .card.bg-danger .card-title {
+    opacity: 0.8;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.card.bg-primary .card-text, .card.bg-success .card-text, 
+.card.bg-info .card-text, .card.bg-danger .card-text {
+    font-weight: 600;
+    margin-bottom: 0;
+}
+
+/* Footer */
+footer {
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+} 
