@@ -254,7 +254,7 @@
                                 </thead>
                                 <tbody>
                                     <tr th:each="transaction : ${transactions}">
-                                        <td th:text="${#temporals.format(transaction.timestamp, 'yyyy-MM-dd HH:mm')}">2023-01-01 12:00</td>
+                                        <td th:text="${#temporals.format(transaction.timestamp, 'yyyy-MM-dd HH:mm')}">2025-01-01 12:00</td>
                                         <td th:class="${transaction.type == 'BUY' ? 'text-success' : 'text-danger'}" th:text="${transaction.type}">BUY</td>
                                         <td th:text="${transaction.stock.symbol}">AAPL</td>
                                         <td th:text="${transaction.quantity}">10</td>
@@ -272,7 +272,7 @@
 
     <footer class="bg-light text-center py-3 mt-5">
         <div class="container">
-            <p class="mb-0">&copy; 2023 Stock Trading Simulation. For educational purposes only.</p>
+            <p class="mb-0">&copy; 2025 Stock Trading Simulation.</p>
         </div>
     </footer>
 
