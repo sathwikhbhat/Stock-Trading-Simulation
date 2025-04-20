@@ -37,7 +37,7 @@ public class HomeController {
     @GetMapping("/")
     public String home(HttpSession session, Model model) {
         // Check if user is logged in
-        Long userId = (Long) session.getAttribute("userId");
+        String userId = (String) session.getAttribute("userId");
         if (userId == null) {
             return "redirect:/login";
         }

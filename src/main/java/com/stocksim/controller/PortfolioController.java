@@ -27,7 +27,7 @@ public class PortfolioController {
     
     @GetMapping
     public String getPortfolio(Model model, HttpSession session) {
-        Long userId = (Long) session.getAttribute("userId");
+        String userId = (String) session.getAttribute("userId");
         if (userId == null) {
             return "redirect:/login";
         }
@@ -48,7 +48,7 @@ public class PortfolioController {
     
     @GetMapping("/performance")
     public String getPerformance(Model model, HttpSession session) {
-        Long userId = (Long) session.getAttribute("userId");
+        String userId = (String) session.getAttribute("userId");
         if (userId == null) {
             return "redirect:/login";
         }

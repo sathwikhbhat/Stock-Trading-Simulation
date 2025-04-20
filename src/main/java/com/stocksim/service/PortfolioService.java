@@ -25,7 +25,7 @@ public class PortfolioService {
         return portfolioRepository.findByUser(user);
     }
     
-    public Optional<Portfolio> getPortfolioById(Long id) {
+    public Optional<Portfolio> getPortfolioById(String id) {
         return portfolioRepository.findById(id);
     }
     

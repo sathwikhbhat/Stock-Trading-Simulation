@@ -4,6 +4,7 @@ com\stocksim\repository\PortfolioRepository.class
 com\stocksim\repository\StockRepository.class
 com\stocksim\service\PortfolioService.class
 com\stocksim\service\StockService.class
+com\stocksim\config\MongoConfig.class
 com\stocksim\repository\TransactionRepository.class
 com\stocksim\model\User.class
 com\stocksim\StockSimulationApplication.class

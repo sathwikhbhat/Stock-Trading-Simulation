@@ -10,6 +10,7 @@ C:\Users\Sathwik\Downloads\EazyByts.com\stock-trading-simulation\src\main\java\c
 C:\Users\Sathwik\Downloads\EazyByts.com\stock-trading-simulation\src\main\java\com\stocksim\model\User.java
 C:\Users\Sathwik\Downloads\EazyByts.com\stock-trading-simulation\src\main\java\com\stocksim\repository\TransactionRepository.java
 C:\Users\Sathwik\Downloads\EazyByts.com\stock-trading-simulation\src\main\java\com\stocksim\repository\UserRepository.java
+C:\Users\Sathwik\Downloads\EazyByts.com\stock-trading-simulation\src\main\java\com\stocksim\config\MongoConfig.java
 C:\Users\Sathwik\Downloads\EazyByts.com\stock-trading-simulation\src\main\java\com\stocksim\controller\StockController.java
 C:\Users\Sathwik\Downloads\EazyByts.com\stock-trading-simulation\src\main\java\com\stocksim\service\PortfolioService.java
 C:\Users\Sathwik\Downloads\EazyByts.com\stock-trading-simulation\src\main\java\com\stocksim\controller\HomeController.java

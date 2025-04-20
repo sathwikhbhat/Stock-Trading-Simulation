@@ -26,7 +26,7 @@ public class StockService {
         return stockRepository.findAll();
     }
     
-    public Optional<Stock> getStockById(Long id) {
+    public Optional<Stock> getStockById(String id) {
         return stockRepository.findById(id);
     }
     

@@ -1,19 +1,19 @@
 package com.stocksim.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.index.Indexed;
 import java.math.BigDecimal;
 
-@Entity
+@Document(collection = "stocks")
 public class Stock {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
     
+    @Indexed(unique = true)
     private String symbol;
+    
     private String name;
     private BigDecimal currentPrice;
     private Long volume;
@@ -30,11 +30,11 @@ public class Stock {
     }
     
     // Getters and Setters
-    public Long getId() {
+    public String getId() {
         return id;
     }
     
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
     

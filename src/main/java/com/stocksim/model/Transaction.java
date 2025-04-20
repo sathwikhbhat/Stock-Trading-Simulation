@@ -1,22 +1,21 @@
 package com.stocksim.model;
 
-import javax.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Entity
+@Document(collection = "transactions")
 public class Transaction {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id;
     
-    @ManyToOne
-    @JoinColumn(name = "user_id")
+    @DBRef
     private User user;
     
-    @ManyToOne
-    @JoinColumn(name = "stock_id")
+    @DBRef
     private Stock stock;
     
     private String type; // BUY or SELL
@@ -38,11 +37,11 @@ public class Transaction {
     }
     
     // Getters and Setters
-    public Long getId() {
+    public String getId() {
         return id;
     }
     
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
     

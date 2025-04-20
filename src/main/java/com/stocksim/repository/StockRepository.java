@@ -1,12 +1,12 @@
 package com.stocksim.repository;
 
 import com.stocksim.model.Stock;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface StockRepository extends JpaRepository<Stock, Long> {
+public interface StockRepository extends MongoRepository<Stock, String> {
     Optional<Stock> findBySymbol(String symbol);
 } 

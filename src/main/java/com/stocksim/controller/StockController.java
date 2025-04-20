@@ -32,7 +32,7 @@ public class StockController {
     
     @GetMapping
     public String getAllStocks(Model model, HttpSession session) {
-        Long userId = (Long) session.getAttribute("userId");
+        String userId = (String) session.getAttribute("userId");
         if (userId == null) {
             return "redirect:/login";
         }
@@ -42,8 +42,8 @@ public class StockController {
     }
     
     @GetMapping("/{id}")
-    public String getStockDetails(@PathVariable Long id, Model model, HttpSession session) {
-        Long userId = (Long) session.getAttribute("userId");
+    public String getStockDetails(@PathVariable String id, Model model, HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
         if (userId == null) {
             return "redirect:/login";
         }
@@ -58,11 +58,11 @@ public class StockController {
     }
     
     @PostMapping("/buy")
-    public String buyStock(@RequestParam Long stockId,
+    public String buyStock(@RequestParam String stockId,
                           @RequestParam int quantity,
                           HttpSession session,
                           Model model) {
-        Long userId = (Long) session.getAttribute("userId");
+        String userId = (String) session.getAttribute("userId");
         if (userId == null) {
             return "redirect:/login";
         }
@@ -87,11 +87,11 @@ public class StockController {
     }
     
     @PostMapping("/sell")
-    public String sellStock(@RequestParam Long stockId,
+    public String sellStock(@RequestParam String stockId,
                            @RequestParam int quantity,
                            HttpSession session,
                            Model model) {
-        Long userId = (Long) session.getAttribute("userId");
+        String userId = (String) session.getAttribute("userId");
         if (userId == null) {
             return "redirect:/login";
         }
