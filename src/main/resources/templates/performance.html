@@ -168,23 +168,19 @@
         /*<![CDATA[*/
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM fully loaded');
-            const portfolioItems = /*[[${portfolioItems}]]*/ [];
-            console.log('Portfolio items:', portfolioItems);
+
+            // Get the pre-processed data from controller
+            const symbols = /*[[${chartSymbols}]]*/ [];
+            const values = /*[[${chartValues}]]*/ [];
+            const profitLoss = /*[[${chartProfitLoss}]]*/ [];
             
-            if (portfolioItems && portfolioItems.length > 0) {
-                console.log('Creating charts for', portfolioItems.length, 'items');
+            console.log('Chart data:', { symbols, values, profitLoss });
+            
+            if (symbols && symbols.length > 0) {
+                console.log('Creating charts for', symbols.length, 'items');
                 
                 try {
                     // Portfolio Composition Pie Chart
-                    const symbols = portfolioItems.map(item => item.stock.symbol);
-                    const values = portfolioItems.map(item => {
-                        // Extract the numeric value from the getCurrentValue method result
-                        return parseFloat(item.getCurrentValue().toString());
-                    });
-                    
-                    console.log('Symbols:', symbols);
-                    console.log('Values:', values);
-                    
                     const portfolioCanvas = document.getElementById('portfolioComposition');
                     console.log('Portfolio canvas element:', portfolioCanvas);
                     
@@ -215,13 +211,6 @@
                     });
                     
                     // Performance Bar Chart
-                    const profitLoss = portfolioItems.map(item => {
-                        // Extract the numeric value from the getProfitLoss method result
-                        return parseFloat(item.getProfitLoss().toString());
-                    });
-                    
-                    console.log('Profit/Loss values:', profitLoss);
-                    
                     const performanceCanvas = document.getElementById('performanceBarChart');
                     console.log('Performance canvas element:', performanceCanvas);
                     
