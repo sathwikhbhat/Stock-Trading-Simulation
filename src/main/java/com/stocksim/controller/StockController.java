@@ -114,12 +114,4 @@ public class StockController {
         
         return "redirect:/";
     }
-    
-    // For demonstration purposes, trigger the stock price update
-    @GetMapping("/update-prices")
-    @ResponseBody
-    public String updatePrices() {
-        stockService.updateStockPrices();
-        return "Stock prices updated";
-    }
 } 
