@@ -7,6 +7,30 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
     <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <style>
+        .flash-update {
+            animation: flash-green 1s ease-out;
+        }
+        @keyframes flash-green {
+            0% { background-color: rgba(40, 167, 69, 0.3); }
+            100% { background-color: transparent; }
+        }
+        .flash-update-red {
+            animation: flash-red 1s ease-out;
+        }
+        @keyframes flash-red {
+            0% { background-color: rgba(220, 53, 69, 0.3); }
+            100% { background-color: transparent; }
+        }
+        .value-up {
+            color: #28a745;
+            transition: color 0.3s;
+        }
+        .value-down {
+            color: #dc3545;
+            transition: color 0.3s;
+        }
+    </style>
 </head>
 <body>
     <!-- Navigation Bar -->
@@ -33,7 +57,7 @@
                 </ul>
                 <div class="d-flex align-items-center text-white">
                     <span class="me-3"><i class="bi bi-person-circle me-1"></i> <span th:text="${user.username}">Username</span></span>
-                    <span class="me-3"><i class="bi bi-cash-coin me-1"></i> $<span th:text="${#numbers.formatDecimal(user.accountBalance,1,2)}">10,000.00</span></span>
+                    <span class="me-3"><i class="bi bi-cash-coin me-1"></i> $<span id="account-balance" th:text="${#numbers.formatDecimal(user.accountBalance,1,2)}">10,000.00</span></span>
                     <a th:href="@{/logout}" class="btn btn-sm btn-outline-light">Logout</a>
                 </div>
             </div>
@@ -47,7 +71,7 @@
                 <div class="card bg-primary text-white shadow">
                     <div class="card-body">
                         <h5 class="card-title">Cash Balance</h5>
-                        <h3 class="card-text">$<span th:text="${#numbers.formatDecimal(user.accountBalance,1,2)}">10,000.00</span></h3>
+                        <h3 class="card-text">$<span id="cash-balance" th:text="${#numbers.formatDecimal(user.accountBalance,1,2)}">10,000.00</span></h3>
                     </div>
                 </div>
             </div>
@@ -55,18 +79,20 @@
                 <div class="card bg-success text-white shadow">
                     <div class="card-body">
                         <h5 class="card-title">Portfolio Value</h5>
-                        <h3 class="card-text">$<span th:text="${#numbers.formatDecimal(totalValue,1,2)}">0.00</span></h3>
+                        <h3 class="card-text">$<span id="portfolio-value" th:text="${#numbers.formatDecimal(totalValue,1,2)}">0.00</span></h3>
+                        <div class="small" id="portfolio-change"></div>
                     </div>
                 </div>
             </div>
             <div class="col-md-4">
-                <div th:class="${totalProfitLoss.signum() >= 0 ? 'card bg-info text-white shadow' : 'card bg-danger text-white shadow'}">
+                <div id="profit-loss-card" th:class="${totalProfitLoss.signum() >= 0 ? 'card bg-info text-white shadow' : 'card bg-danger text-white shadow'}">
                     <div class="card-body">
                         <h5 class="card-title">Profit/Loss</h5>
                         <h3 class="card-text">
-                            <span th:if="${totalProfitLoss.signum() >= 0}">+</span>
-                            $<span th:text="${#numbers.formatDecimal(totalProfitLoss,1,2)}">0.00</span>
+                            <span id="profit-loss-sign" th:if="${totalProfitLoss.signum() >= 0}">+</span>
+                            $<span id="profit-loss-value" th:text="${#numbers.formatDecimal(totalProfitLoss,1,2)}">0.00</span>
                         </h3>
+                        <div class="small" id="profit-loss-percent"></div>
                     </div>
                 </div>
             </div>
@@ -76,8 +102,12 @@
         <div class="row">
             <div class="col-12">
                 <div class="card shadow">
-                    <div class="card-header">
+                    <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">Portfolio Holdings</h5>
+                        <div>
+                            <span class="badge bg-info me-2" id="connection-status">Connecting...</span>
+                            <span class="badge bg-secondary me-2" id="last-update"></span>
+                        </div>
                     </div>
                     <div class="card-body">
                         <div th:if="${#lists.isEmpty(portfolioItems)}" class="alert alert-info">
@@ -98,22 +128,22 @@
                                         <th>Action</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <tr th:each="item : ${portfolioItems}">
+                                <tbody id="portfolio-tbody">
+                                    <tr th:each="item : ${portfolioItems}" th:attr="data-stock-id=${item.stock.id}, data-quantity=${item.quantity}, data-purchase-price=${item.purchasePrice}">
                                         <td th:text="${item.stock.symbol}">AAPL</td>
                                         <td th:text="${item.stock.name}">Apple Inc.</td>
                                         <td th:text="${item.quantity}">10</td>
                                         <td>$<span th:text="${#numbers.formatDecimal(item.purchasePrice,1,2)}">145.00</span></td>
-                                        <td>$<span th:text="${#numbers.formatDecimal(item.stock.currentPrice,1,2)}">150.50</span></td>
-                                        <td>$<span th:text="${#numbers.formatDecimal(item.getCurrentValue(),1,2)}">1,505.00</span></td>
+                                        <td>$<span class="current-price" th:text="${#numbers.formatDecimal(item.stock.currentPrice,1,2)}">150.50</span></td>
+                                        <td>$<span class="current-value" th:text="${#numbers.formatDecimal(item.getCurrentValue(),1,2)}">1,505.00</span></td>
                                         <td th:class="${item.getProfitLoss().signum() >= 0 ? 'text-success' : 'text-danger'}">
-                                            <span th:if="${item.getProfitLoss().signum() >= 0}">+</span>
-                                            $<span th:text="${#numbers.formatDecimal(item.getProfitLoss(),1,2)}">55.00</span>
+                                            <span class="profit-loss-sign" th:if="${item.getProfitLoss().signum() >= 0}">+</span>
+                                            $<span class="profit-loss" th:text="${#numbers.formatDecimal(item.getProfitLoss(),1,2)}">55.00</span>
                                         </td>
                                         <td th:with="percentChange=${(item.stock.currentPrice.subtract(item.purchasePrice)).divide(item.purchasePrice, 4, T(java.math.RoundingMode).HALF_UP).multiply(new java.math.BigDecimal(100))}"
                                             th:class="${percentChange.signum() >= 0 ? 'text-success' : 'text-danger'}">
-                                            <span th:if="${percentChange.signum() >= 0}">+</span>
-                                            <span th:text="${#numbers.formatDecimal(percentChange,1,2)}">3.75</span>%
+                                            <span class="percent-change-sign" th:if="${percentChange.signum() >= 0}">+</span>
+                                            <span class="percent-change" th:text="${#numbers.formatDecimal(percentChange,1,2)}">3.75</span>%
                                         </td>
                                         <td>
                                             <button class="btn btn-sm btn-danger" data-bs-toggle="modal" th:data-bs-target="'#sellModal' + ${item.stock.id}">Sell</button>
@@ -133,13 +163,13 @@
                                                                     <strong th:text="${item.stock.symbol}">AAPL</strong> - 
                                                                     <span th:text="${item.stock.name}">Apple Inc.</span>
                                                                 </p>
-                                                                <p>Current Price: $<span th:text="${#numbers.formatDecimal(item.stock.currentPrice,1,2)}">150.50</span></p>
+                                                                <p>Current Price: $<span class="modal-current-price" th:text="${#numbers.formatDecimal(item.stock.currentPrice,1,2)}">150.50</span></p>
                                                                 <p>You own: <span th:text="${item.quantity}">10</span> shares</p>
                                                                 <div class="form-group mb-3">
                                                                     <label for="sellQuantity">Quantity to Sell</label>
-                                                                    <input type="number" class="form-control" id="sellQuantity" name="quantity" min="1" th:max="${item.quantity}" th:value="${item.quantity}" required>
+                                                                    <input type="number" class="form-control quantity-input" id="sellQuantity" name="quantity" min="1" th:max="${item.quantity}" th:value="${item.quantity}" required>
                                                                 </div>
-                                                                <p>Total Value: $<span id="totalValue" th:text="${#numbers.formatDecimal(item.stock.currentPrice.multiply(new java.math.BigDecimal(item.quantity)),1,2)}">1,505.00</span></p>
+                                                                <p>Total Value: $<span class="total-value" th:text="${#numbers.formatDecimal(item.stock.currentPrice.multiply(new java.math.BigDecimal(item.quantity)),1,2)}">1,505.00</span></p>
                                                             </div>
                                                             <div class="modal-footer">
                                                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -166,6 +196,429 @@
         </div>
     </footer>
 
+    <!-- SockJS and STOMP for WebSocket -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stomp-websocket@2.3.4-next/lib/stomp.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        document.addEventListener('DOMContentLoaded', function() {
+            // Portfolio data
+            const portfolioRows = document.querySelectorAll('#portfolio-tbody tr');
+            let portfolioData = {};
+            let lastTotalValue = parseFloat(document.getElementById('portfolio-value').textContent);
+            let lastProfitLoss = parseFloat(document.getElementById('profit-loss-value').textContent);
+            
+            // Initialize portfolio data from the DOM
+            portfolioRows.forEach(row => {
+                const stockId = row.dataset.stockId;
+                const quantity = parseInt(row.dataset.quantity);
+                const purchasePrice = parseFloat(row.dataset.purchasePrice);
+                const currentPrice = parseFloat(row.querySelector('.current-price').textContent);
+                
+                portfolioData[stockId] = {
+                    quantity: quantity,
+                    purchasePrice: purchasePrice,
+                    currentPrice: currentPrice
+                };
+            });
+            
+            // WebSocket connection
+            const socket = new SockJS('/ws');
+            const stompClient = Stomp.over(socket);
+
+            // Debug flag - set to true to see detailed debugging
+            const DEBUG = true;
+
+            // Disable STOMP debug logging unless needed
+            stompClient.debug = DEBUG ? console.log : null;
+
+            const connectionStatus = document.getElementById('connection-status');
+            const lastUpdate = document.getElementById('last-update');
+
+            // Force disconnect and reconnect if already connected - fixes stale connections
+            if (window.existingStompClient) {
+                try {
+                    window.existingStompClient.disconnect();
+                    console.log('Disconnected existing STOMP client');
+                } catch (e) {
+                    console.warn('Error disconnecting existing client', e);
+                }
+            }
+
+            // Connect to WebSocket with reconnection logic
+            function connectWebSocket() {
+                connectionStatus.textContent = 'Connecting...';
+                connectionStatus.className = 'badge bg-warning me-2';
+
+                const headers = {};
+                stompClient.connect(headers, function(frame) {
+                    console.log('Connected to WebSocket:', frame);
+                    connectionStatus.textContent = 'Connected';
+                    connectionStatus.className = 'badge bg-success me-2';
+                    
+                    // Subscribe to stock updates
+                    const subscription = stompClient.subscribe('/topic/stock-updates', function(message) {
+                        console.log('Received WebSocket message:', message);
+                        try {
+                            const updates = JSON.parse(message.body);
+                            console.log(`Received ${updates.length} stock updates`);
+                            updatePortfolioValues(updates);
+                            updateLastUpdateTime();
+                        } catch (error) {
+                            console.error('Error processing stock updates:', error);
+                            connectionStatus.textContent = 'Error';
+                            connectionStatus.className = 'badge bg-warning me-2';
+                        }
+                    });
+                    
+                    // Subscribe to pong responses
+                    const pongSubscription = stompClient.subscribe('/topic/pong', function(message) {
+                        console.log('Received pong:', message.body);
+                        // Update connection status with success indicator
+                        connectionStatus.textContent = 'Connected';
+                        connectionStatus.className = 'badge bg-success me-2';
+                        
+                        // Force a refresh of portfolio data occasionally
+                        if (Math.random() < 0.3) { // 30% chance to refresh data on each pong
+                            stompClient.send("/app/fetch-stocks", {}, {});
+                        }
+                    });
+                    
+                    // Store subscriptions for potential cleanup
+                    window.stockUpdateSubscription = subscription;
+                    window.pongSubscription = pongSubscription;
+                    
+                    // Request initial data
+                    stompClient.send("/app/fetch-stocks", {}, {});
+                    console.log('Sent initial stock data request');
+                }, function(error) {
+                    console.error('STOMP connection error:', error);
+                    connectionStatus.textContent = 'Disconnected';
+                    connectionStatus.className = 'badge bg-danger me-2';
+                    
+                    // Try to reconnect after delay
+                    setTimeout(connectWebSocket, 5000);
+                });
+            }
+
+            // Store the STOMP client globally for reconnection logic
+            window.existingStompClient = stompClient;
+
+            // Connect to WebSocket
+            connectWebSocket();
+            
+            // Function to update portfolio values with real-time stock updates
+            function updatePortfolioValues(updates) {
+                // Log the incoming updates for debugging
+                if (DEBUG) {
+                    console.log('Processing updates for stocks:', updates.map(u => u.symbol).join(', '));
+                }
+                
+                let totalPortfolioValue = 0;
+                let totalCostBasis = 0;
+                let anyUpdates = false;
+                let updatedStocks = [];
+                
+                // First pass - update individual stock data from WebSocket
+                updates.forEach(update => {
+                    // Check if we own this stock
+                    if (portfolioData[update.id]) {
+                        anyUpdates = true;
+                        updatedStocks.push(update.symbol);
+                        const stockData = portfolioData[update.id];
+                        const row = document.querySelector(`tr[data-stock-id="${update.id}"]`);
+                        
+                        if (row) {
+                            // Update the current price
+                            const priceEl = row.querySelector('.current-price');
+                            const oldPrice = parseFloat(priceEl.textContent);
+                            const newPrice = parseFloat(update.currentPrice).toFixed(2);
+                            priceEl.textContent = newPrice;
+                            
+                            // Update our stored data
+                            stockData.currentPrice = parseFloat(newPrice);
+                            
+                            // Flash background to indicate price change
+                            if (newPrice > oldPrice) {
+                                row.classList.add('flash-update');
+                                setTimeout(() => row.classList.remove('flash-update'), 1000);
+                            } else if (newPrice < oldPrice) {
+                                row.classList.add('flash-update-red');
+                                setTimeout(() => row.classList.remove('flash-update-red'), 1000);
+                            }
+                            
+                            // Calculate and update values
+                            const quantity = stockData.quantity;
+                            const purchasePrice = stockData.purchasePrice;
+                            
+                            // Current value
+                            const currentValue = (quantity * newPrice).toFixed(2);
+                            const valueEl = row.querySelector('.current-value');
+                            const oldValue = parseFloat(valueEl.textContent);
+                            valueEl.textContent = currentValue;
+                            
+                            if (parseFloat(currentValue) > oldValue) {
+                                valueEl.classList.add('value-up');
+                                setTimeout(() => valueEl.classList.remove('value-up'), 1000);
+                            } else if (parseFloat(currentValue) < oldValue) {
+                                valueEl.classList.add('value-down');
+                                setTimeout(() => valueEl.classList.remove('value-down'), 1000);
+                            }
+                            
+                            // Profit/Loss
+                            const profitLoss = (quantity * (newPrice - purchasePrice)).toFixed(2);
+                            const profitLossEl = row.querySelector('.profit-loss');
+                            profitLossEl.textContent = Math.abs(profitLoss).toFixed(2);
+                            
+                            // Profit/Loss sign
+                            const profitLossSignEl = row.querySelector('.profit-loss-sign');
+                            if (parseFloat(profitLoss) >= 0) {
+                                row.cells[6].classList.remove('text-danger');
+                                row.cells[6].classList.add('text-success');
+                                if (!profitLossSignEl) {
+                                    const span = document.createElement('span');
+                                    span.className = 'profit-loss-sign';
+                                    span.textContent = '+';
+                                    row.cells[6].insertBefore(span, profitLossEl);
+                                }
+                            } else {
+                                row.cells[6].classList.remove('text-success');
+                                row.cells[6].classList.add('text-danger');
+                                if (profitLossSignEl) {
+                                    profitLossSignEl.remove();
+                                }
+                            }
+                            
+                            // Percent change
+                            const percentChange = ((newPrice - purchasePrice) / purchasePrice * 100).toFixed(2);
+                            const percentChangeEl = row.querySelector('.percent-change');
+                            percentChangeEl.textContent = Math.abs(percentChange).toFixed(2);
+                            
+                            // Percent change sign
+                            const percentChangeSignEl = row.querySelector('.percent-change-sign');
+                            if (parseFloat(percentChange) >= 0) {
+                                row.cells[7].classList.remove('text-danger');
+                                row.cells[7].classList.add('text-success');
+                                if (!percentChangeSignEl) {
+                                    const span = document.createElement('span');
+                                    span.className = 'percent-change-sign';
+                                    span.textContent = '+';
+                                    row.cells[7].insertBefore(span, percentChangeEl);
+                                }
+                            } else {
+                                row.cells[7].classList.remove('text-success');
+                                row.cells[7].classList.add('text-danger');
+                                if (percentChangeSignEl) {
+                                    percentChangeSignEl.remove();
+                                }
+                            }
+                            
+                            // Update modal price if open
+                            const modalPriceEl = document.querySelector(`#sellModal${update.id} .modal-current-price`);
+                            if (modalPriceEl) {
+                                modalPriceEl.textContent = newPrice;
+                                
+                                // Update total value in modal if open
+                                const quantityInput = document.querySelector(`#sellModal${update.id} .quantity-input`);
+                                if (quantityInput) {
+                                    const modalTotalEl = document.querySelector(`#sellModal${update.id} .total-value`);
+                                    if (modalTotalEl) {
+                                        const modalQuantity = parseInt(quantityInput.value) || 0;
+                                        modalTotalEl.textContent = (modalQuantity * newPrice).toFixed(2);
+                                    }
+                                }
+                            }
+                            
+                            // Calculate cost basis and add to total portfolio value
+                            const costBasis = quantity * purchasePrice;
+                            totalCostBasis += costBasis;
+                            totalPortfolioValue += parseFloat(currentValue);
+                        }
+                    }
+                });
+                
+                // Important: We need to recalculate the entire portfolio value from all rows
+                // regardless of which stocks were updated in this batch
+                totalPortfolioValue = 0;
+                totalCostBasis = 0;
+                
+                // Second pass - calculate totals from ALL portfolio items
+                portfolioRows.forEach(row => {
+                    const stockId = row.dataset.stockId;
+                    const quantity = parseInt(row.dataset.quantity);
+                    const purchasePrice = parseFloat(row.dataset.purchasePrice);
+                    const currentPrice = parseFloat(row.querySelector('.current-price').textContent);
+                    const currentValue = quantity * currentPrice;
+                    
+                    // Update running totals
+                    totalCostBasis += quantity * purchasePrice;
+                    totalPortfolioValue += currentValue;
+                });
+                
+                // Debug log the calculations
+                if (DEBUG) {
+                    console.log('Portfolio calculations:', {
+                        totalValue: totalPortfolioValue.toFixed(2),
+                        totalCostBasis: totalCostBasis.toFixed(2),
+                        profitLoss: (totalPortfolioValue - totalCostBasis).toFixed(2),
+                        updatedStocks: updatedStocks,
+                        totalStocks: portfolioRows.length
+                    });
+                }
+                
+                // Always update the summary values, even if no specific stocks were updated
+                // This ensures any portfolio-wide calculations are always correct
+                // Update portfolio value with animation
+                const portfolioValueEl = document.getElementById('portfolio-value');
+                const oldPortfolioValue = parseFloat(portfolioValueEl.textContent);
+                portfolioValueEl.textContent = totalPortfolioValue.toFixed(2);
+                
+                if (totalPortfolioValue > oldPortfolioValue) {
+                    portfolioValueEl.classList.add('value-up');
+                    setTimeout(() => portfolioValueEl.classList.remove('value-up'), 1000);
+                } else if (totalPortfolioValue < oldPortfolioValue) {
+                    portfolioValueEl.classList.add('value-down');
+                    setTimeout(() => portfolioValueEl.classList.remove('value-down'), 1000);
+                }
+                
+                // Calculate and update the total profit/loss with animation
+                const totalProfitLoss = totalPortfolioValue - totalCostBasis;
+                const profitLossEl = document.getElementById('profit-loss-value');
+                const oldProfitLossValue = profitLossEl.textContent;
+                const oldProfitLossSign = document.getElementById('profit-loss-sign') ? 1 : -1;
+                const oldProfitLoss = parseFloat(oldProfitLossValue) * oldProfitLossSign;
+                
+                // Update the profit/loss display
+                profitLossEl.textContent = Math.abs(totalProfitLoss).toFixed(2);
+                
+                // Log the profit/loss update
+                console.log('Profit/Loss Update:', {
+                    old: oldProfitLoss.toFixed(2),
+                    new: totalProfitLoss.toFixed(2),
+                    change: (totalProfitLoss - oldProfitLoss).toFixed(2)
+                });
+                
+                // Visual indicator for profit/loss changes
+                if (Math.abs(totalProfitLoss) > Math.abs(oldProfitLoss)) {
+                    profitLossEl.classList.add('value-up');
+                    setTimeout(() => profitLossEl.classList.remove('value-up'), 1000);
+                } else if (Math.abs(totalProfitLoss) < Math.abs(oldProfitLoss)) {
+                    profitLossEl.classList.add('value-down');
+                    setTimeout(() => profitLossEl.classList.remove('value-down'), 1000);
+                }
+                
+                // Update profit/loss sign and card color
+                const profitLossSignEl = document.getElementById('profit-loss-sign');
+                const profitLossCard = document.getElementById('profit-loss-card');
+                
+                if (totalProfitLoss >= 0) {
+                    profitLossCard.className = 'card bg-info text-white shadow';
+                    if (!profitLossSignEl) {
+                        const span = document.createElement('span');
+                        span.id = 'profit-loss-sign';
+                        span.textContent = '+';
+                        profitLossEl.parentNode.insertBefore(span, profitLossEl);
+                    }
+                } else {
+                    profitLossCard.className = 'card bg-danger text-white shadow';
+                    if (profitLossSignEl) {
+                        profitLossSignEl.remove();
+                    }
+                }
+                
+                // Update percent change in portfolio value
+                const portfolioChangeEl = document.getElementById('portfolio-change');
+                if (lastTotalValue > 0) {
+                    const changePercent = ((totalPortfolioValue - lastTotalValue) / lastTotalValue * 100).toFixed(2);
+                    if (changePercent != 0) {
+                        const sign = parseFloat(changePercent) >= 0 ? '+' : '';
+                        portfolioChangeEl.textContent = `${sign}${changePercent}% from last update`;
+                        portfolioChangeEl.className = 'small ' + (parseFloat(changePercent) >= 0 ? 'text-white' : 'text-warning');
+                    }
+                }
+                
+                // Update profit/loss percent with clear visual indicator
+                const plPercentEl = document.getElementById('profit-loss-percent');
+                if (totalCostBasis > 0) {
+                    const plPercent = (totalProfitLoss / totalCostBasis * 100).toFixed(2);
+                    const sign = parseFloat(plPercent) >= 0 ? '+' : '';
+                    plPercentEl.textContent = `${sign}${plPercent}% return`;
+                    plPercentEl.className = 'small ' + (parseFloat(plPercent) >= 0 ? 'text-white' : 'text-warning');
+                }
+                
+                // Store current values for next update
+                lastTotalValue = totalPortfolioValue;
+                lastProfitLoss = totalProfitLoss;
+            }
+            
+            // Function to update last update time
+            function updateLastUpdateTime() {
+                const now = new Date();
+                lastUpdate.textContent = `Last updated: ${now.toLocaleTimeString()}`;
+            }
+            
+            // Add event listeners for quantity changes in modals
+            document.querySelectorAll('.quantity-input').forEach(input => {
+                input.addEventListener('input', function() {
+                    const modal = this.closest('.modal');
+                    const priceEl = modal.querySelector('.modal-current-price');
+                    const totalEl = modal.querySelector('.total-value');
+                    
+                    if (priceEl && totalEl) {
+                        const price = parseFloat(priceEl.textContent);
+                        const quantity = parseInt(this.value) || 0;
+                        totalEl.textContent = (price * quantity).toFixed(2);
+                    }
+                });
+            });
+
+            // Keep connection alive with heartbeat
+            function setupHeartbeat() {
+                // Ping every 20 seconds to keep connection alive
+                const pingInterval = setInterval(() => {
+                    if (stompClient && stompClient.connected) {
+                        console.log('Sending heartbeat ping');
+                        stompClient.send('/app/ping', {}, JSON.stringify({ action: 'ping', timestamp: Date.now() }));
+                    } else {
+                        console.warn('WebSocket disconnected, attempting to reconnect...');
+                        connectionStatus.textContent = 'Reconnecting...';
+                        connectionStatus.className = 'badge bg-warning me-2';
+                        clearInterval(pingInterval);
+                        connectWebSocket();
+                    }
+                }, 20000);
+                
+                // Store interval for cleanup
+                window.heartbeatInterval = pingInterval;
+                
+                return pingInterval;
+            }
+
+            // Handle page visibility changes
+            document.addEventListener('visibilitychange', function() {
+                if (document.visibilityState === 'visible') {
+                    console.log('Page became visible - checking connection');
+                    if (!stompClient || !stompClient.connected) {
+                        console.log('Reconnecting on visibility change');
+                        connectWebSocket();
+                    } else {
+                        console.log('Connection still active');
+                        // Force refresh data
+                        if (stompClient && stompClient.connected) {
+                            stompClient.send("/app/fetch-stocks", {}, {});
+                            console.log('Requested fresh data on visibility change');
+                        }
+                    }
+                }
+            });
+
+            // After the websocket connection is established in the connectWebSocket function
+            // Add after this line: window.stockUpdateSubscription = subscription;
+            setupHeartbeat();
+        });
+        /*]]>*/
+    </script>
 </body>
 </html> 

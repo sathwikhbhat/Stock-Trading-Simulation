@@ -74,6 +74,7 @@
                                         <td><span class="price-change">0.00</span></td>
                                         <td class="stock-volume" th:text="${#numbers.formatInteger(stock.volume,1,'COMMA')}">1,000,000</td>
                                         <td>
+                                            <a th:href="@{/stocks/{id}(id=${stock.id})}" class="btn btn-sm btn-info">View Chart</a>
                                             <button class="btn btn-sm btn-success" data-bs-toggle="modal" th:data-bs-target="'#buyModal' + ${stock.id}">Buy</button>
                                             <button class="btn btn-sm btn-danger" data-bs-toggle="modal" th:data-bs-target="'#sellModal' + ${stock.id}">Sell</button>
                                             

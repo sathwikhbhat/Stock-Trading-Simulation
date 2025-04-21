@@ -16,6 +16,7 @@ com\stocksim\config\ScheduledTasks.class
 com\stocksim\controller\StockController.class
 com\stocksim\model\Transaction.class
 com\stocksim\service\TransactionService.class
+com\stocksim\model\Stock$PricePoint.class
 com\stocksim\config\WebSocketConfig.class
 com\stocksim\model\Stock.class
 com\stocksim\controller\PortfolioController.class

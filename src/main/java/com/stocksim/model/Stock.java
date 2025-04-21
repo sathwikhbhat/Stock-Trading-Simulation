@@ -4,6 +4,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.index.Indexed;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Document(collection = "stocks")
 public class Stock {
@@ -17,6 +19,7 @@ public class Stock {
     private String name;
     private BigDecimal currentPrice;
     private Long volume;
+    private List<PricePoint> priceHistory = new ArrayList<>();
     
     // Constructors
     public Stock() {
@@ -68,5 +71,50 @@ public class Stock {
     
     public void setVolume(Long volume) {
         this.volume = volume;
+    }
+    
+    public List<PricePoint> getPriceHistory() {
+        return priceHistory;
+    }
+    
+    public void setPriceHistory(List<PricePoint> priceHistory) {
+        this.priceHistory = priceHistory;
+    }
+    
+    public void addPricePoint(PricePoint pricePoint) {
+        if (this.priceHistory == null) {
+            this.priceHistory = new ArrayList<>();
+        }
+        this.priceHistory.add(pricePoint);
+    }
+    
+    // Inner class for price history points
+    public static class PricePoint {
+        private long timestamp;
+        private BigDecimal price;
+        
+        public PricePoint() {
+        }
+        
+        public PricePoint(long timestamp, BigDecimal price) {
+            this.timestamp = timestamp;
+            this.price = price;
+        }
+        
+        public long getTimestamp() {
+            return timestamp;
+        }
+        
+        public void setTimestamp(long timestamp) {
+            this.timestamp = timestamp;
+        }
+        
+        public BigDecimal getPrice() {
+            return price;
+        }
+        
+        public void setPrice(BigDecimal price) {
+            this.price = price;
+        }
     }
 } 

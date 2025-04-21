@@ -11,7 +11,9 @@ import org.springframework.stereotype.Controller;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class StockWebSocketController {
@@ -43,6 +45,16 @@ public class StockWebSocketController {
         }
         
         return updates;
+    }
+
+    @MessageMapping("/ping")
+    @SendTo("/topic/pong")
+    public Map<String, Object> handlePing() {
+        Map<String, Object> response = new HashMap<>();
+        response.put("action", "pong");
+        response.put("timestamp", System.currentTimeMillis());
+        response.put("serverTime", new java.util.Date().toString());
+        return response;
     }
 
     // This method will be called from the scheduled task
