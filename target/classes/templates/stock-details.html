@@ -568,8 +568,16 @@
                     }
                 });
                 
+                // Subscribe to pong responses to keep connection alive
+                stompClient.subscribe('/topic/pong', function(message) {
+                    console.log('Heartbeat received from server');
+                });
+                
                 // Request initial data
                 stompClient.send("/app/fetch-stocks", {}, {});
+                
+                // Setup heartbeat mechanism
+                setupHeartbeat(stompClient);
                 
             }, function(error) {
                 console.error('STOMP error:', error);
@@ -577,6 +585,34 @@
                 // Try to reconnect after a delay
                 setTimeout(setupWebSocket, 5000);
             });
+        }
+        
+        // Add heartbeat function to periodically ping the server
+        function setupHeartbeat(stompClient) {
+            // Send a ping every 20 seconds to keep the connection alive
+            const heartbeatInterval = setInterval(() => {
+                if (stompClient && stompClient.connected) {
+                    try {
+                        console.log('Sending heartbeat');
+                        stompClient.send('/app/ping', {}, JSON.stringify({ 
+                            action: 'ping', 
+                            timestamp: Date.now(), 
+                            stockId: stockId 
+                        }));
+                    } catch (err) {
+                        console.error('Failed to send heartbeat, connection may be lost:', err);
+                        clearInterval(heartbeatInterval);
+                        setTimeout(setupWebSocket, 3000);
+                    }
+                } else {
+                    console.warn('Connection lost, clearing heartbeat interval');
+                    clearInterval(heartbeatInterval);
+                    setTimeout(setupWebSocket, 3000);
+                }
+            }, 20000);
+            
+            // Store interval reference for potential cleanup
+            window.heartbeatInterval = heartbeatInterval;
         }
         
         // ====== BUY/SELL FORM CALCULATIONS ======

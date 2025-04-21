@@ -37,7 +37,7 @@ public class UserService {
     
     public User registerUser(String username, String password, String email) {
         // In a real application, you would validate the input and hash the password
-        User user = new User(username, password, email, new BigDecimal("10000.00")); // Start with $10,000
+        User user = new User(username, password, email, new BigDecimal("100000.00")); // Start with $100,000
         return userRepository.save(user);
     }
     

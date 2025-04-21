@@ -32,15 +32,7 @@ public class DataInitializer implements CommandLineRunner {
             String dbName = mongoTemplate.getDb().getName();
             logger.info("Initializing data in database: {}", dbName);
             
-            // Check if we need to initialize stocks
-            long stockCount = stockService.getAllStocks().size();
-            if (stockCount == 0) {
-                logger.info("No existing stocks found. Initializing stock data...");
-                stockService.initializeStocks();
-                logger.info("Stock data initialization completed successfully!");
-            } else {
-                logger.info("Found {} existing stocks. Skipping stock initialization.", stockCount);
-            }
+            // Removed stock initialization code to prevent sample stock price generation
             
             // Create a demo user if none exists
             if (userService.getAllUsers().isEmpty()) {
